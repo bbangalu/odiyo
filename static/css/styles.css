@@ -662,7 +662,7 @@ table thead th {
 
 @media (max-width: 480px) {  /* 예: 화면 너비가 480px 이하일 때 */
     body {
-        font-size: 8px;  /* 원하는 폰트 크기로 조절 */
+        font-size: 15px;  /* 원하는 폰트 크기로 조절 */
     }
 }
 
@@ -1802,7 +1802,7 @@ table thead th {
 /* 반응형 디자인 */
 @media only screen and (max-width: 768px) {
     .table {
-        font-size: 0.5vw;
+        font-size: 5vw;
     }
     .table th, .table td {
         padding: 1px 2px;  /* 패딩 조정 */

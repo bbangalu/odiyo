@@ -3,25 +3,33 @@ import requests
 import xml.etree.ElementTree as ET
 import logging
 from datetime import datetime
+import pytz
 import asyncio
 import aiohttp
-
+import os
 
 app = Flask(__name__)
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 
+local_tz = pytz.timezone('Asia/Seoul')
 
-API_URL = "https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{airline}/{flight_number}/arr/{year}/{month}/{day}?appId=a66645af&appKey=25620212e892c90f4cb909fc22369778&utc=true"
+API_URL = os.environ.get('API_URL', "https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{airline}/{flight_number}/arr/{year}/{month}/{day}?appId=a66645af&appKey=25620212e892c90f4cb909fc22369778&utc=true")
 
 async def fetch_flight_data(session, url):
-    async with session.get(url) as response:
-        return await response.json()
+    try:
+        async with session.get(url) as response:
+            return await response.json()
+    except aiohttp.ClientError as e:
+        logging.error(f"API request failed: {e}")
+        return None
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return "Page not found", 404
 
-
-ENDPOINT = "http://openapi.airport.co.kr/service/rest/FlightStatusList/getFlightStatusList"
-SERVICE_KEY = "3jkDYzA2uD6s50OH4zqE/NRd7uXuypkyG0gG7Rq550Dnn4nQYBcUpRKVMELmOpA3vh5vZ4n+kozC0gXkkDcWHg=="
+ENDPOINT = os.environ.get('ENDPOINT', "http://openapi.airport.co.kr/service/rest/FlightStatusList/getFlightStatusList")
+SERVICE_KEY = os.environ.get('SERVICE_KEY', "3jkDYzA2uD6s50OH4zqE/NRd7uXuypkyG0gG7Rq550Dnn4nQYBcUpRKVMELmOpA3vh5vZ4n+kozC0gXkkDcWHg==")
 
 
 AIRPORT_CODES = [
@@ -168,7 +176,7 @@ def index():
     # 선택된 공항의 이름을 가져옵니다.
     selected_airport_name = next((airport["name"] for airport in AIRPORT_CODES if airport["code"] == selected_airport), "")
     # 현재 시간을 가져옵니다.
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    current_time = datetime.now(local_tz).strftime('%Y-%m-%d %H:%M:%S')
 
     return render_template('index.html', flight_type=flight_type, departures=departures, arrivals=arrivals,
                            AIRPORT_CODES=AIRPORT_CODES, selected_airport=selected_airport, AIRLINE_LOGOS=AIRLINE_LOGOS,
@@ -348,4 +356,4 @@ def mark_flights_in_air(departures, arrivals, selected_airport):
             departure['flying2'] = "출발 전"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
