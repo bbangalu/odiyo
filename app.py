@@ -28,7 +28,7 @@ async def fetch_flight_data(session, url):
 def page_not_found(e):
     return "Page not found", 404
 
-ENDPOINT = os.environ.get('ENDPOINT', "http://openapi.airport.co.kr/service/rest/FlightStatusList/getFlightStatusList")
+ENDPOINT = os.environ.get('ENDPOINT', "https://openapi.airport.co.kr/service/rest/FlightStatusList/getFlightStatusList")
 SERVICE_KEY = os.environ.get('SERVICE_KEY', "3jkDYzA2uD6s50OH4zqE/NRd7uXuypkyG0gG7Rq550Dnn4nQYBcUpRKVMELmOpA3vh5vZ4n+kozC0gXkkDcWHg==")
 
 
